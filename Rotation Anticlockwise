@@ -1,0 +1,146 @@
+#include<stdio.h>
+#include <math.h>
+#include <GL/glut.h>
+void plot(int arr[4][4],int v,GLfloat r, GLfloat g, GLfloat b)
+{
+int i,j;
+ 
+	for(j=0;j<v;j++)
+	{
+        glColor3f(r,g,b);                              //clear the buffer to present values
+        glBegin(GL_LINES);                             //where to begin from
+        glVertex2i(arr[0][j],arr[1][j]);
+	    glVertex2i(arr[0][j+1],arr[1][j+1]);          //spcify the segment point
+        glEnd();                                      
+}
+}
+
+void rotation(int obj[4][4],int v)                    //rotation function about it's diagonals intersecting points
+{
+   double rot[3][3],angle;
+   int final[4][4],a=0;
+   int i, j, k;
+   printf("Enter the angle:");
+   scanf("%lf", &angle);
+   
+   angle=(angle*3.14)/180;
+   
+   rot[0][0]=cos(angle);
+   rot[0][1]=-sin(angle);
+   rot[0][2]=0;
+   rot[1][0]=sin(angle);                                        //rotation matrix
+   rot[1][1]=cos(angle);
+   rot[1][2]=0;
+   rot[2][0]=0;
+   rot[2][1]=0;
+   rot[2][2]=1;
+   
+    printf("Rotation  matrix is:\n");
+    for (i = 0; i < 3; i++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            printf("%lf\t", rot[i][j]);
+        }
+        printf("\n");
+    }
+    printf("After rotation:\n");
+ 
+    for (i = 0; i < 3; i++)
+    {
+        for (j = 0; j < v; j++)
+        {
+            for (k = 0; k < 3; k++)
+            {
+                a += rot[i][k] * obj[k][j];
+ 
+            }
+            printf("%d\t", a);
+            final[i][j] = a;
+            a=0;
+        }
+        printf("\n");
+    }
+    final[0][v] = final[0][0];
+    final[1][v] = final[1][0];
+    final[2][v] = final[2][0];
+    plot(final,v,0.0,0.1,0.0);
+}
+
+void user()                                                 //user funtion
+{
+    int obj[4][4];                                         //enter square coordinates
+    int i, j,ch,v;
+    double angle;
+    
+    printf("Enter the no of vertices in the object:");     
+    scanf("%d",&v);
+    
+    printf("Enter the Object coordinates:");
+    for (i = 0; i < 3; i++)
+    {
+        for (j = 0; j < v; j++)
+        {
+            scanf("%d", &obj[i][j]);
+        }
+    }
+    obj[0][v]=obj[0][0];
+    obj[1][v]=obj[1][0];
+    obj[2][v]=obj[2][0];
+    printf("Object matrix is:\n");
+    for (i = 0; i < 3; i++)
+    {
+        for (j = 0; j < v; j++)
+        {
+            printf("%d\t", obj[i][j]);
+        }
+        printf("\n");
+    }
+ 
+    plot(obj,v,1.0,0.0,0.0);
+	
+	rotation(obj,v);
+
+ 
+}
+  
+void output(void)
+{
+	glClear(GL_COLOR_BUFFER_BIT);                          //clear buffer to prevent values
+    user();
+ 
+    glFlush();                                            //empties frame buffer and display object
+	
+}
+
+
+void Init()                                               //initalize drawing colors
+{
+ 
+  glClearColor(1.0,1.0,1.0,0);                            //Set clear color to white
+  
+  glColor3f(0.0,0.0,0.0);                                 //Set fill color to black 
+  glViewport(0 , 0 , 640,480);                            //view port window
+
+
+  gluOrtho2D(0 ,640 , 0 , 480);                           //initalize 2D plan
+}
+ 
+int main(int argc, char **argv)
+{
+
+  glutInit(&argc,argv);                                  //centralized glut library
+
+  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);          //sets initial values
+
+  glutInitWindowPosition(0,0);
+  glutInitWindowSize(640,480);
+
+  glutCreateWindow(" Rotation");                        //function calling
+
+  Init();
+
+  glutDisplayFunc(output);
+
+  glutMainLoop();
+}
